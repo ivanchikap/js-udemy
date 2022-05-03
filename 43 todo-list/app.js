@@ -106,6 +106,8 @@ const tasks = [
     },
   };
 
+  let lastSelectedTheme = 'default';
+
   // Elemnts UI
   const listContainer = document.querySelector(
     '.tasks-list-section .list-group',
@@ -119,6 +121,7 @@ const tasks = [
   renderAllTasks(objOfTasks);
   form.addEventListener('submit', onFormSubmitHandler);
   listContainer.addEventListener('click', onDeletehandler);
+  themeSelect.addEventListener('change', onThemeSelectHandler)
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -215,4 +218,22 @@ const tasks = [
     }
   }
 
+  function onThemeSelectHandler(e) {
+    const selectedTheme = themeSelect.value;
+    const isConfirmed = confirm(`Do you really want to change theme ${selectedTheme}?`);
+
+    if (!isConfirmed) {
+      themeSelect.value = lastSelectedTheme;
+      return
+    }
+    setTheme(selectedTheme);
+    lastSelectedTheme = selectedTheme;
+  }
+
+  function setTheme(name) {
+    const selectedThemeObject = themes[name];
+    Object.entries(selectedThemeObject).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(key, value);
+    });
+  }
 })(tasks);
