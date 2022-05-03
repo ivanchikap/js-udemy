@@ -106,7 +106,7 @@ const tasks = [
     },
   };
 
-  let lastSelectedTheme = 'default';
+  let lastSelectedTheme = localStorage.getItem('app_theme') || 'default';
 
   // Elemnts UI
   const listContainer = document.querySelector(
@@ -116,8 +116,11 @@ const tasks = [
   const inputTitle = form.elements['title'];
   const inputBody = form.elements['body'];
   const themeSelect = document.getElementById('themeSelect');
+  const select = themeSelect.getElementsByTagName('option');
 
   // Events
+  setTheme(lastSelectedTheme);
+  setSelectedItem(select);
   renderAllTasks(objOfTasks);
   form.addEventListener('submit', onFormSubmitHandler);
   listContainer.addEventListener('click', onDeletehandler);
@@ -228,6 +231,7 @@ const tasks = [
     }
     setTheme(selectedTheme);
     lastSelectedTheme = selectedTheme;
+    localStorage.setItem('app_theme', selectedTheme);
   }
 
   function setTheme(name) {
@@ -235,5 +239,13 @@ const tasks = [
     Object.entries(selectedThemeObject).forEach(([key, value]) => {
       document.documentElement.style.setProperty(key, value);
     });
+  }
+  function setSelectedItem(select) {
+    for (let option of select) {
+      if (option.value === localStorage.getItem('app_theme')) {
+        option.selected = true;
+        break;
+      }
+    }
   }
 })(tasks);
