@@ -61,7 +61,6 @@ function getUsersHTTP(cb) {
     xhr.send();
 }
 
-
 function onGetUsersCallback(users) {
     if (!users.length || !Array.isArray(users)) {
         return;
