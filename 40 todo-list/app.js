@@ -139,7 +139,6 @@ const tasks = [
       const confirmed = deleteTask(id);
 
       deleteTaskFromHtml(confirmed, parent);
-
    }
   }
   
