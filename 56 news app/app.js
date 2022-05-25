@@ -53,9 +53,11 @@ function customHttp() {
     },
   };
 }
+
 // Init http module
 const http = customHttp();
 
+//Services
 const newsService = (function() {
   const apiKey = '66eb64a469bd4f7285a97443cbf818fc';
   const apiUrl = 'https://newsapi.org/v2';
@@ -76,12 +78,11 @@ const countySelect = form.elements['country'];
 const categorySelect = form.elements['category'];
 const searchInput = form.elements['search'];
 
+//  events
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   loadNews();
 });
-
-//  init selects
 document.addEventListener('DOMContentLoaded', function() {
   M.AutoInit();
   loadNews();
@@ -99,10 +100,7 @@ function loadNews() {
   } else {
     newsService.everything(searchText, onGetResponse);
   }
-
-  newsService.topHeadlines('ua', '', onGetResponse);
 }
-
 
 //function on get response from server
 function onGetResponse(err, res) {
@@ -114,11 +112,8 @@ function onGetResponse(err, res) {
   }
 
   if (!res.articles.length) {
-    const newsContainer = document.querySelector('.news-container .row');
+    clearContainer();
 
-    if (newsContainer.children.length) {
-      clearContainer(newsContainer);
-    }
     showAlert('There is no articles!!!', 'error-msg');
     return;
   }
@@ -130,9 +125,7 @@ function onGetResponse(err, res) {
 function renderNews(news) {
   const newsContainer = document.querySelector('.news-container .row');
 
-  if (newsContainer.children.length) {
-    clearContainer(newsContainer);
-  }
+  clearContainer();
 
   let fragment = '';
   news.forEach((newsItem) => {
@@ -142,21 +135,12 @@ function renderNews(news) {
   newsContainer.insertAdjacentHTML('afterbegin', fragment);
 }
 
-// Function clear container
-function clearContainer(container) {
-  let child = container.lastElementChild;
-  while (child) {
-    container.removeChild(child);
-    child = container.lastElementChild;
-  }
-}
-
 //news item template function
 function newsTemplate({urlToImage, title, url, description}) {
-    if (!urlToImage) {
-      urlToImage = 'zaglushka.jpg';
-    }
-    return `
+  if (!urlToImage) {
+    urlToImage = 'zaglushka.jpg';
+  }
+  return `
       <div class="col s12"> 
           <div class="card">
               <div class="card-image">
@@ -174,6 +158,19 @@ function newsTemplate({urlToImage, title, url, description}) {
   `;
 }
 
+// Function clear container
+function clearContainer() {
+  const container = document.querySelector('.news-container .row');
+
+  if (container.children.length) {
+    let child = container.lastElementChild;
+    while (child) {
+      container.removeChild(child);
+      child = container.lastElementChild;
+    }
+  }
+}
+
 function showAlert(msg, type = 'success') {
   M.toast({html: msg, classes: type});
 }
@@ -188,7 +185,6 @@ function showLoader() {
 }
 
 //remove loader function
-
 function removeLoader() {
   const loader = document.querySelector('.progress');
   if (loader) {
