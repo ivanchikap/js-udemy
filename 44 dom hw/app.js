@@ -1,6 +1,6 @@
 // Условия:
 //
-//     1. В конце таблицы обязательно последняя tr должна содержать total balance всех пользователей из таблицы при этом он должен быть всегда выровнен по правому краю.
+//  1. В конце таблицы обязательно последняя tr должна содержать total balance всех пользователей из таблицы при этом он должен быть всегда выровнен по правому краю.
 //
 // 2. Количество пользователей может быть любым.
 //
@@ -55,7 +55,7 @@ const tableSchema = {
     name: 'Name',
     email: 'Email',
     balance: 'Balance',
-}
+};
 
 function generateTableTemplate() {
     const table = document.createElement('table');
@@ -127,7 +127,7 @@ function initTable(tableSchema, items) {
     const table = generateTableTemplate();
     const header = generateThead(tableSchema);
     const body = generateTbody(tableSchema, items);
-    const total = generateTotalBalance(tableSchema, items)
+    const total = generateTotalBalance(tableSchema, items);
 
     table.appendChild(header);
     table.appendChild(body);

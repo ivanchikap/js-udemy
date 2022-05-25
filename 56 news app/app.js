@@ -61,14 +61,25 @@ const newsService = (function() {
   const apiUrl = 'https://newsapi.org/v2';
 
   return {
-    topHeadlines(country = 'ua', cb) {
-      http.get(`${apiUrl}/top-headlines?country=${country}&category=technology&apiKey=${apiKey}`, cb);
+    topHeadlines(country = 'ua', category = 'general', cb) {
+      http.get(`${apiUrl}/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}`, cb);
     },
     everything(query, cb) {
       http.get(`${apiUrl}/everything?q=${query}&apiKey=${apiKey}`, cb);
     }
   }
 })();
+
+//UI elements
+const form = document.forms['newsControls'];
+const countySelect = form.elements['country'];
+const categorySelect = form.elements['category'];
+const searchInput = form.elements['search'];
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  loadNews();
+});
 
 //  init selects
 document.addEventListener('DOMContentLoaded', function() {
@@ -78,20 +89,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //Load news function
 function loadNews() {
-  newsService.topHeadlines('ua', onGetResponse);
+  showLoader();
+  const country = countySelect.value;
+  const searchText = searchInput.value;
+  const category = categorySelect.value;
+
+  if (!searchText) {
+    newsService.topHeadlines(country, category, onGetResponse);
+  } else {
+    newsService.everything(searchText, onGetResponse);
+  }
+
+  newsService.topHeadlines('ua', '', onGetResponse);
 }
 
 
 //function on get response from server
 function onGetResponse(err, res) {
+  removeLoader();
+
+  if (err) {
+    showAlert(err, 'error-msg');
+    return;
+  }
+
+  if (!res.articles.length) {
+    const newsContainer = document.querySelector('.news-container .row');
+
+    if (newsContainer.children.length) {
+      clearContainer(newsContainer);
+    }
+    showAlert('There is no articles!!!', 'error-msg');
+    return;
+  }
+
   renderNews(res.articles);
 }
 
 //function render news
 function renderNews(news) {
   const newsContainer = document.querySelector('.news-container .row');
-  let fragment = '';
 
+  if (newsContainer.children.length) {
+    clearContainer(newsContainer);
+  }
+
+  let fragment = '';
   news.forEach((newsItem) => {
     const el = newsTemplate(newsItem);
     fragment += el;
@@ -99,8 +142,20 @@ function renderNews(news) {
   newsContainer.insertAdjacentHTML('afterbegin', fragment);
 }
 
+// Function clear container
+function clearContainer(container) {
+  let child = container.lastElementChild;
+  while (child) {
+    container.removeChild(child);
+    child = container.lastElementChild;
+  }
+}
+
 //news item template function
 function newsTemplate({urlToImage, title, url, description}) {
+    if (!urlToImage) {
+      urlToImage = 'zaglushka.jpg';
+    }
     return `
       <div class="col s12"> 
           <div class="card">
@@ -117,4 +172,26 @@ function newsTemplate({urlToImage, title, url, description}) {
           </div>
       </div>
   `;
+}
+
+function showAlert(msg, type = 'success') {
+  M.toast({html: msg, classes: type});
+}
+
+//show loader function
+function showLoader() {
+  document.body.insertAdjacentHTML('afterbegin', `
+    <div class="progress">
+        <div class="indeterminate"></div>
+    </div>
+  `);
+}
+
+//remove loader function
+
+function removeLoader() {
+  const loader = document.querySelector('.progress');
+  if (loader) {
+    loader.remove();
+  }
 }

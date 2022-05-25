@@ -30,7 +30,6 @@ function addNewUserHTTP(data, cb) {
     xhr.setRequestHeader("Content-Type", "application/json");
 
     xhr.addEventListener("load", () => {
-        console.log(xhr);
         if (Math.floor(xhr.status / 100) !== 2) {
             console.log("Error", xhr.status);
             return;

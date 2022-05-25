@@ -6,41 +6,39 @@ const usersListEl = document.querySelector(".users-list");
 const userInfoEl = document.querySelector(".user-info");
 
 //DOM events
-usersListEl.addEventListener('click', (e) => {
-    e.preventDefault();
-
-    if (e.target.dataset.userId) {
-        getUserInfoHTTP(e.target.dataset.userId, onGetUserInfoCallback);
+usersListEl.addEventListener('click', ({target}) => {
+    if (target.dataset.userId) {
+        const user = getUserInfoHTTP(target.dataset.userId, renderNewUserToList)
     }
 });
 
-
-function getUserInfoHTTP(id, cb) {
+function getUserInfoHTTP(id, callback) {
     const xhr = new XMLHttpRequest();
 
     xhr.open('GET', `${apiURL}/users/${id}`);
 
     xhr.addEventListener('load', () => {
-
-        if (xhr.status !== 200) {
-            console.error('Error', xhr.status);
-            return;
-        }
-
-        const res = JSON.parse(xhr.responseText);
-        cb(res);
+       if (xhr.status !== 200) {
+           console.log('status not 200');
+           return;
+       }
+       const user = JSON.parse(xhr.responseText);
+       callback(user);
     });
 
     xhr.send();
 }
 
-function onGetUserInfoCallback(user) {
+function renderNewUserToList(user) {
     if (!user.id) {
-        console.log('user not found');
+        console.log('no user');
         return
     }
-    renderUserInfo(user);
+    userInfoEl.innerHTML = '';
+    const fragment = userInfoTemplate(user);
+    userInfoEl.insertAdjacentHTML('afterbegin', fragment);
 }
+
 
 function getUsersHTTP(cb) {
     const xhr = new XMLHttpRequest();
@@ -48,10 +46,9 @@ function getUsersHTTP(cb) {
     xhr.open('GET', `${apiURL}/users`);
 
     xhr.addEventListener('load', () => {
-
         if (xhr.status !== 200) {
-            console.error('Error', xhr.status);
-            return;
+            console.log('status not 200');
+            return
         }
 
         const res = JSON.parse(xhr.responseText);
@@ -63,13 +60,10 @@ function getUsersHTTP(cb) {
 
 function onGetUsersCallback(users) {
     if (!users.length || !Array.isArray(users)) {
-        return;
+        console.log('no users');
     }
-    renderUsersList(users);
-}
+    const fragment = users.reduce((acc, user) => acc + userListItemTemplate(user) ,'');
 
-function renderUsersList(users) {
-    const fragment = users.reduce((acc, user) => acc + userListItemTemplate(user), '');
     usersListEl.insertAdjacentHTML('afterbegin', fragment);
 }
 
@@ -79,13 +73,6 @@ function userListItemTemplate(user) {
     `;
 }
 
-
-function renderUserInfo(user) {
-    userInfoEl.innerHTML = '';
-
-    const template = userInfoTemplate(user);
-    userInfoEl.insertAdjacentHTML('afterbegin', template);
-}
 
 function userInfoTemplate(user) {
     return `
